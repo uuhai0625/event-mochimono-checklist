@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同人イベント 持ち物チェックリストメーカー(完全無料)</title>
+<style>
+  :root {
+    --accent: #1f8f7a;
+    --accent-dark: #145c4e;
+    --bg: #f5faf9;
+    --card: #ffffff;
+    --border: #dcece8;
+    --text: #26312e;
+    --muted: #6f8480;
+    --danger: #c94a4a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 8px; font-size: 22px; }
+  header p { margin: 0; font-size: 13px; opacity: 0.9; }
+  main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 16px;
+    border-left: 4px solid var(--accent);
+    padding-left: 10px;
+  }
+  .field-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 160px; margin-bottom: 10px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .field input[type="text"], .field input[type="date"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 10px;
+    background: var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 5px;
+    transition: width 0.2s;
+  }
+  .progress-label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .category-block { margin-bottom: 22px; }
+  .category-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .category-title-row input[type="text"] {
+    font-weight: bold;
+    font-size: 15px;
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: none;
+    padding: 2px 4px;
+    flex: 1;
+  }
+  .category-title-row input[type="text"]:focus {
+    border-bottom: 1px solid var(--accent);
+    outline: none;
+  }
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .item-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .item-row input[type="text"] {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 14px;
+    padding: 4px;
+  }
+  .item-row input[type="text"]:focus {
+    outline: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .item-row.checked input[type="text"] {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+  .item-row .removeItemBtn, .removeCategoryBtn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 2px 6px;
+  }
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn.ghost {
+    background: none;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn.small {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 24px 20px 40px;
+  }
+  footer a { color: var(--accent); }
+  @media print {
+    header, .btn-row, .no-print, .removeItemBtn, .removeCategoryBtn { display: none !important; }
+    body { background: #fff; }
+    .card { border: none; box-shadow: none; padding: 8px 0; }
+    .category-title-row input[type="text"] { border: none !important; }
+    .item-row { border-bottom: 1px dotted #ccc; }
+    .item-row input[type="text"] { color: #000 !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>同人イベント 持ち物チェックリストメーカー</h1>
+  <p>よくある持ち物をカテゴリ別にチェック、自由に追加・編集して印刷も可能(完全無料・登録不要)</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>① イベント情報</h2>
+    <div class="field-row">
+      <div class="field">
+        <label for="eventName">イベント名</label>
+        <input type="text" id="eventName" placeholder="例: コミティア123">
+      </div>
+      <div class="field">
+        <label for="eventDate">開催日</label>
+        <input type="date" id="eventDate">
+      </div>
+      <div class="field">
+        <label for="spaceNo">サークルスペース</label>
+        <input type="text" id="spaceNo" placeholder="例: あ-12">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>② 進捗</h2>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 0</div>
+    </div>
+  </div>
+
+  <div class="card" id="categoriesCard">
+    <h2>③ 持ち物チェックリスト</h2>
+    <div id="categoriesWrap"></div>
+    <div class="btn-row no-print">
+      <button type="button" class="btn ghost small" id="addCategoryBtn">+ カテゴリを追加</button>
+      <button type="button" class="btn ghost small" id="resetDefaultsBtn">初期リストに戻す</button>
+    </div>
+  </div>
+
+  <div class="btn-row no-print">
+    <button class="btn" id="saveBtn">このブラウザに保存</button>
+    <button class="btn ghost" id="loadBtn">保存データを読み込む</button>
+    <button class="btn ghost" id="printBtn">チェックリストを印刷</button>
+  </div>
+
+</main>
+
+<footer>
+  <p>入力内容は一切外部に送信されません(すべてブラウザ内で完結します)。</p>
+  <p>不具合・ご要望は BOOTHメッセージ、または X(Twitter) <a href="https://x.com/uuhai0625" target="_blank" rel="noopener">@uuhai0625</a> まで。</p>
+</footer>
+
+<script>
+function esc(s) {
+  return (s || "").toString().replace(/[<>&"']/g, function (c) {
+    return { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+var SAVE_KEY = "event_mochimono_checklist_v1";
+
+function defaultCategories() {
+  return [
+    {
+      name: "在庫・販売用品",
+      items: [
+        "頒布物本体(在庫数を確認)",
+        "値札・POP",
+        "お釣り(小銭)の準備",
+        "レジ袋・紙袋",
+        "ブックスタンド・什器",
+        "見本誌"
+      ].map(function (label) { return { label: label, checked: false }; })
+    },
+    {
+      name: "机まわり・設営",
+      items: [
+        "布(テーブルクロス)",
+        "養生テープ",
+        "はさみ・カッター",
+        "クリップ・輪ゴム",
+        "ゴミ袋"
+      ].map(function (label) { return { label: label, checked: false }; })
+    },
+    {
+      name: "身分証・入場関連",
+      items: [
+        "サークルチケット・参加証",
+        "身分証明書",
+        "スペース配置図"
+      ].map(function (label) { return { label: label, checked: false }; })
+    },
+    {
+      name: "会計・売上管理",
+      items: [
+        "キャッシュトレイ",
+        "売上記録表",
+        "電卓",
+        "キャッシュレス決済用QRコード"
+      ].map(function (label) { return { label: label, checked: false }; })
+    },
+    {
+      name: "体調・快適グッズ",
+      items: [
+        "飲み物・軽食",
+        "常備薬",
+        "カイロ・汗拭きシート(季節品)",
+        "マスク・ウェットティッシュ"
+      ].map(function (label) { return { label: label, checked: false }; })
+    },
+    {
+      name: "忘れ物になりがちな物",
+      items: [
+        "荷造り紐",
+        "モバイルバッテリー",
+        "筆記用具",
+        "台車・カート"
+      ].map(function (label) { return { label: label, checked: false }; })
+    }
+  ];
+}
+
+var data = {
+  eventName: "",
+  eventDate: "",
+  spaceNo: "",
+  categories: defaultCategories()
+};
+
+function renderCategories() {
+  var wrap = document.getElementById("categoriesWrap");
+  wrap.innerHTML = "";
+  data.categories.forEach(function (cat, ci) {
+    var block = document.createElement("div");
+    block.className = "category-block";
+
+    var titleRow = document.createElement("div");
+    titleRow.className = "category-title-row";
+    titleRow.innerHTML =
+      '<input type="text" class="categoryNameInput" data-ci="' + ci + '" value="' + esc(cat.name) + '">' +
+      '<button type="button" class="removeCategoryBtn no-print" data-ci="' + ci + '">✕</button>';
+    block.appendChild(titleRow);
+
+    cat.items.forEach(function (item, ii) {
+      var row = document.createElement("div");
+      row.className = "item-row" + (item.checked ? " checked" : "");
+      row.innerHTML =
+        '<input type="checkbox" class="itemCheck" data-ci="' + ci + '" data-ii="' + ii + '" ' + (item.checked ? "checked" : "") + '>' +
+        '<input type="text" class="itemLabel" data-ci="' + ci + '" data-ii="' + ii + '" value="' + esc(item.label) + '">' +
+        '<button type="button" class="removeItemBtn no-print" data-ci="' + ci + '" data-ii="' + ii + '">✕</button>';
+      block.appendChild(row);
+    });
+
+    var addItemBtn = document.createElement("button");
+    addItemBtn.type = "button";
+    addItemBtn.className = "btn ghost small no-print";
+    addItemBtn.textContent = "+ 項目を追加";
+    addItemBtn.dataset.ci = ci;
+    addItemBtn.style.marginTop = "6px";
+    addItemBtn.addEventListener("click", function () {
+      data.categories[ci].items.push({ label: "", checked: false });
+      renderCategories();
+      updateProgress();
+    });
+    block.appendChild(addItemBtn);
+
+    wrap.appendChild(block);
+  });
+
+  wrap.querySelectorAll(".categoryNameInput").forEach(function (el) {
+    el.addEventListener("input", function () {
+      data.categories[Number(el.dataset.ci)].name = el.value;
+    });
+  });
+  wrap.querySelectorAll(".removeCategoryBtn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      data.categories.splice(Number(btn.dataset.ci), 1);
+      renderCategories();
+      updateProgress();
+    });
+  });
+  wrap.querySelectorAll(".itemCheck").forEach(function (el) {
+    el.addEventListener("change", function () {
+      data.categories[Number(el.dataset.ci)].items[Number(el.dataset.ii)].checked = el.checked;
+      renderCategories();
+      updateProgress();
+    });
+  });
+  wrap.querySelectorAll(".itemLabel").forEach(function (el) {
+    el.addEventListener("input", function () {
+      data.categories[Number(el.dataset.ci)].items[Number(el.dataset.ii)].label = el.value;
+    });
+  });
+  wrap.querySelectorAll(".removeItemBtn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      data.categories[Number(btn.dataset.ci)].items.splice(Number(btn.dataset.ii), 1);
+      renderCategories();
+      updateProgress();
+    });
+  });
+}
+
+function updateProgress() {
+  var total = 0, checked = 0;
+  data.categories.forEach(function (cat) {
+    cat.items.forEach(function (item) {
+      total++;
+      if (item.checked) checked++;
+    });
+  });
+  var pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressLabel").textContent = checked + " / " + total;
+}
+
+document.getElementById("eventName").addEventListener("input", function (e) { data.eventName = e.target.value; });
+document.getElementById("eventDate").addEventListener("input", function (e) { data.eventDate = e.target.value; });
+document.getElementById("spaceNo").addEventListener("input", function (e) { data.spaceNo = e.target.value; });
+
+document.getElementById("addCategoryBtn").addEventListener("click", function () {
+  data.categories.push({ name: "新しいカテゴリ", items: [] });
+  renderCategories();
+  updateProgress();
+});
+
+document.getElementById("resetDefaultsBtn").addEventListener("click", function () {
+  if (!confirm("現在のチェック内容をすべて破棄して、初期リストに戻します。よろしいですか？")) return;
+  data.categories = defaultCategories();
+  renderCategories();
+  updateProgress();
+});
+
+document.getElementById("saveBtn").addEventListener("click", function () {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    alert("保存しました。");
+  } catch (e) {
+    alert("保存に失敗しました(ブラウザのプライベートモード等ではご利用いただけない場合があります)。");
+  }
+});
+
+document.getElementById("loadBtn").addEventListener("click", function () {
+  var raw;
+  try {
+    raw = localStorage.getItem(SAVE_KEY);
+  } catch (e) {
+    raw = null;
+  }
+  if (!raw) {
+    alert("保存されたデータが見つかりませんでした。");
+    return;
+  }
+  var loaded;
+  try {
+    loaded = JSON.parse(raw);
+  } catch (e) {
+    alert("保存データの形式が正しくないため読み込めませんでした。");
+    return;
+  }
+  if (!loaded || typeof loaded !== "object" || !Array.isArray(loaded.categories)) {
+    alert("保存データの形式が正しくないため読み込めませんでした。");
+    return;
+  }
+  data.eventName = typeof loaded.eventName === "string" ? loaded.eventName : "";
+  data.eventDate = typeof loaded.eventDate === "string" ? loaded.eventDate : "";
+  data.spaceNo = typeof loaded.spaceNo === "string" ? loaded.spaceNo : "";
+  data.categories = loaded.categories.filter(function (c) {
+    return c && typeof c === "object" && Array.isArray(c.items);
+  }).map(function (c) {
+    return {
+      name: typeof c.name === "string" ? c.name : "",
+      items: c.items.filter(function (i) { return i && typeof i === "object"; }).map(function (i) {
+        return { label: typeof i.label === "string" ? i.label : "", checked: !!i.checked };
+      })
+    };
+  });
+
+  document.getElementById("eventName").value = data.eventName;
+  document.getElementById("eventDate").value = data.eventDate;
+  document.getElementById("spaceNo").value = data.spaceNo;
+  renderCategories();
+  updateProgress();
+  alert("読み込みました。");
+});
+
+document.getElementById("printBtn").addEventListener("click", function () {
+  window.print();
+});
+
+renderCategories();
+updateProgress();
+</script>
+
+</body>
+</html>
