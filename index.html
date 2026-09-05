@@ -111,8 +111,8 @@
     border-bottom: 1px solid var(--border);
   }
   .item-row input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     accent-color: var(--accent);
     flex-shrink: 0;
   }
@@ -137,7 +137,9 @@
     color: var(--muted);
     cursor: pointer;
     font-size: 15px;
-    padding: 2px 6px;
+    padding: 8px 10px;
+    min-width: 36px;
+    min-height: 36px;
   }
   .btn {
     background: var(--accent);
@@ -158,6 +160,15 @@
     font-size: 13px;
   }
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 4px;
+    white-space: pre-wrap;
+  }
   footer {
     text-align: center;
     font-size: 12px;
@@ -217,6 +228,9 @@
       <button type="button" class="btn ghost small" id="addCategoryBtn">+ カテゴリを追加</button>
       <button type="button" class="btn ghost small" id="resetDefaultsBtn">初期リストに戻す</button>
     </div>
+    <div class="note">
+      ※ この持ち物リストは一般的な目安です。イベントごとの持ち込み規定・会場の設備、当日の天候や気温に応じて、必要な項目を追加・調整してください。
+    </div>
   </div>
 
   <div class="btn-row no-print">
@@ -261,7 +275,8 @@ function defaultCategories() {
         "養生テープ",
         "はさみ・カッター",
         "クリップ・輪ゴム",
-        "ゴミ袋"
+        "ゴミ袋",
+        "雨具・荷物用ビニールカバー(雨天対策)"
       ].map(function (label) { return { label: label, checked: false }; })
     },
     {
@@ -287,6 +302,7 @@ function defaultCategories() {
         "飲み物・軽食",
         "常備薬",
         "カイロ・汗拭きシート(季節品)",
+        "塩分タブレット・保冷剤(夏場の熱中症対策)",
         "マスク・ウェットティッシュ"
       ].map(function (label) { return { label: label, checked: false }; })
     },
@@ -319,7 +335,7 @@ function renderCategories() {
     var titleRow = document.createElement("div");
     titleRow.className = "category-title-row";
     titleRow.innerHTML =
-      '<input type="text" class="categoryNameInput" data-ci="' + ci + '" value="' + esc(cat.name) + '">' +
+      '<input type="text" class="categoryNameInput" data-ci="' + ci + '" aria-label="カテゴリ名" value="' + esc(cat.name) + '">' +
       '<button type="button" class="removeCategoryBtn no-print" data-ci="' + ci + '">✕</button>';
     block.appendChild(titleRow);
 
@@ -327,8 +343,8 @@ function renderCategories() {
       var row = document.createElement("div");
       row.className = "item-row" + (item.checked ? " checked" : "");
       row.innerHTML =
-        '<input type="checkbox" class="itemCheck" data-ci="' + ci + '" data-ii="' + ii + '" ' + (item.checked ? "checked" : "") + '>' +
-        '<input type="text" class="itemLabel" data-ci="' + ci + '" data-ii="' + ii + '" value="' + esc(item.label) + '">' +
+        '<input type="checkbox" class="itemCheck" data-ci="' + ci + '" data-ii="' + ii + '" aria-label="' + esc(item.label || "項目") + 'を持ち物に含める" ' + (item.checked ? "checked" : "") + '>' +
+        '<input type="text" class="itemLabel" data-ci="' + ci + '" data-ii="' + ii + '" aria-label="持ち物の名前" value="' + esc(item.label) + '">' +
         '<button type="button" class="removeItemBtn no-print" data-ci="' + ci + '" data-ii="' + ii + '">✕</button>';
       block.appendChild(row);
     });
@@ -406,7 +422,7 @@ document.getElementById("addCategoryBtn").addEventListener("click", function () 
 });
 
 document.getElementById("resetDefaultsBtn").addEventListener("click", function () {
-  if (!confirm("現在のチェック内容をすべて破棄して、初期リストに戻します。よろしいですか？")) return;
+  if (!confirm("現在の内容(チェック状態・自分で追加/編集したカテゴリや項目を含む)をすべて破棄して、最初のおすすめリストに戻します。よろしいですか？")) return;
   data.categories = defaultCategories();
   renderCategories();
   updateProgress();
